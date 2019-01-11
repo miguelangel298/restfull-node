@@ -1,0 +1,14 @@
+{
+  "name": "RESTfull-api-node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Miguel Angel Hernandez Cruz",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "gulp": "^4.0.0",
+    "gulp-nodemon": "^2.4.2",
+    "mongoose": "^5.4.3"
+  }
+}
