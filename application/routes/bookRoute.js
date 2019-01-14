@@ -11,7 +11,6 @@ const bookRouter = express.Router();
       });
     })
     .get(function(req, res) {
-      console.log('se ejecuto');
       Book.find({}, function(err, books) {
         if(err)
           res.status(500).send(err);
@@ -20,16 +19,55 @@ const bookRouter = express.Router();
       })
     });
   
+  bookRouter.use('/books/:id', function(req,res,next){
+    Book.findById(req.params.id, function(err,book){
+      if(err)
+        res.status(500).send(err);
+      else if(book){
+        req.book = book;
+        next();
+      } else {
+        res.status(404).send('not book found');
+      }
+    })
+  });
   bookRouter.route('/books/:id')
-  .get(function(req, res){
-    Book.findById(req.params.id, function(err, book){
+  .get(function(req, res){ 
+    res.json(req.book);
+  })
+  .put(function(req, res) {
+    req.book.title = req.body.title;
+    req.book.author = req.body.author;
+    req.book.genre = req.body.genre;
+    req.book.read = req.body.read;
+    req.book.save();
+    res.json(book);
+  })
+  .patch(function(req, res) {
+    if(req.body._id){
+      delete req.body._id;
+    }
+
+    for(let p in req.body) {
+      req.book[p] = req.body[p];
+    }
+
+    req.book.save(function(err) {
+      if(err)
+        res.status(500).send(err);
+      else {
+        res.json(req.book);
+      }
+    });
+  })
+  .delete(function(req, res){
+    req.book.remove(function(err) {
       if(err)
         res.status(500).send(err);
       else
-        res.json(book);
-    });
-  });
-
+        res.status(204).send('Removed') ;
+    })
+  })
   return bookRouter;
 }
 
