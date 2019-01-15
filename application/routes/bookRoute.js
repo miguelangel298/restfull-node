@@ -1,36 +1,9 @@
 const express = require('express');
-const Book = require('../../data/models/BookModel');
 const BookController = require('../../domain/controllers/BookController');
-
 
 const routes  = function() {
 
-const bookRouter = express.Router();
-
-
-  // bookRouter.route('/books')
-  //   .post(BookController().createBook)
-  //   .get(BookController().getBooks);
-
-  bookRouter.use('/books/:id', function(req,res,next){
-    Book.findById(req.params.id, function(err,book){
-      if(err)
-        res.status(500).send(err);
-      else if(book){
-        req.book = book;
-        next();
-      } else {
-        res.status(404).send('not book found');
-      }
-    })
-  });
-  // bookRouter.route('/books/:id')
-  // .get(BookController().getBookById)
-  // .put(BookController().updateBook)
-  // .patch(BookController().patchUpdateBook)
-  // .delete(BookController().deleteBook);
-
-
+  const bookRouter = express.Router();
   
   async function index(req, res) { 
      const data = await BookController().getBooks();
@@ -52,11 +25,25 @@ const bookRouter = express.Router();
     const updateBook = await BookController().updateBook(req.params.id, req.body);
     res.json(updateBook);
   }
+
+  async function deleteBook(req, res) {
+    const book = await BookController().deleteBook(req.params.id);
+    res.json(book);
+  }
+  
+  async function patchUpdateBook(req, res) {
+    const updateBook = await BookController().patchUpdateBook(req.params.id, req.body);
+    res.json(updateBook);
+
+  }
+
   
   function addRoutes() {
     bookRouter.get('/books', index);
     bookRouter.get('/books/:id', getBookById);
     bookRouter.put('/books/:id', updateBook);
+    bookRouter.delete('/books/:id', deleteBook);
+    bookRouter.patch('/books/:id', patchUpdateBook);
     bookRouter.post('/books', newBook);
     return bookRouter;
   }

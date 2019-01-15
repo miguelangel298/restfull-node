@@ -29,31 +29,32 @@ const bookController = function() {
     return book.save();
   }
 
-  const patchUpdateBook = (req, res) => {
-    if(req.body._id){
-      delete req.body._id;
+  async function patchUpdateBook(idx,payload){
+    if(payload._id){
+      delete payload._id;
     }
-
-    for(let p in req.body) {
-      req.book[p] = req.body[p];
+    const book = await getBookById(idx);
+    for(let p in payload) {
+      book[p] = payload[p];
     }
-
-    req.book.save(function(err) {
+    book.save(function(err) {
       if(err)
-        res.status(500).send(err);
+        return err;
       else {
-        res.json(req.book);
+        return book;
       }
     });
+    return book;
   }
 
-  const deleteBook = (req, res) => {
-    req.book.remove(function(err) {
+  async function deleteBook(bookId) {
+    const book = await getBookById(bookId);
+    book.remove(function(err) {
       if(err)
-        res.status(500).send(err);
+        return err
       else
-        res.status(204).send('Removed') ;
-    })
+       return;
+    });
   }
 
   return {
