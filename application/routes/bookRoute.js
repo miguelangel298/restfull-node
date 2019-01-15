@@ -1,74 +1,55 @@
 const express = require('express');
-const Book = require('../../data/models/BookModel');
-const routes = function() {
+const BookController = require('../../domain/controllers/BookController');
 
-const bookRouter = express.Router();
-  bookRouter.route('/books')
-    .post(function(req, res) {
-      const book = new Book(req.body);
-      book.save().then(function () {
-        res.status(201).send(book);
-      });
-    })
-    .get(function(req, res) {
-      Book.find({}, function(err, books) {
-        if(err)
-          res.status(500).send(err);
-        else
-          res.json(books);
-      })
-    });
+const routes  = function() {
+
+  const bookRouter = express.Router();
   
-  bookRouter.use('/books/:id', function(req,res,next){
-    Book.findById(req.params.id, function(err,book){
-      if(err)
-        res.status(500).send(err);
-      else if(book){
-        req.book = book;
-        next();
-      } else {
-        res.status(404).send('not book found');
-      }
-    })
-  });
-  bookRouter.route('/books/:id')
-  .get(function(req, res){ 
-    res.json(req.book);
-  })
-  .put(function(req, res) {
-    req.book.title = req.body.title;
-    req.book.author = req.body.author;
-    req.book.genre = req.body.genre;
-    req.book.read = req.body.read;
-    req.book.save();
+  async function index(req, res) { 
+     const data = await BookController().getBooks();
+     res.json(data);
+  }
+
+  async function getBookById(req, res) {
+    const idx = req.params.id
+    const book = await BookController().getBookById(idx);
     res.json(book);
-  })
-  .patch(function(req, res) {
-    if(req.body._id){
-      delete req.body._id;
-    }
+  }
 
-    for(let p in req.body) {
-      req.book[p] = req.body[p];
-    }
+  async function newBook(req, res) {
+    const newBook = await BookController().createBook(req.body);
+    res.json(newBook);
+  }
 
-    req.book.save(function(err) {
-      if(err)
-        res.status(500).send(err);
-      else {
-        res.json(req.book);
-      }
-    });
-  })
-  .delete(function(req, res){
-    req.book.remove(function(err) {
-      if(err)
-        res.status(500).send(err);
-      else
-        res.status(204).send('Removed') ;
-    })
-  })
-  return bookRouter;
+  async function updateBook(req, res) {
+    const updateBook = await BookController().updateBook(req.params.id, req.body);
+    res.json(updateBook);
+  }
+
+  async function deleteBook(req, res) {
+    const book = await BookController().deleteBook(req.params.id);
+    res.json(book);
+  }
+  
+  async function patchUpdateBook(req, res) {
+    const updateBook = await BookController().patchUpdateBook(req.params.id, req.body);
+    res.json(updateBook);
+
+  }
+
+  
+  function addRoutes() {
+    bookRouter.get('/books', index);
+    bookRouter.get('/books/:id', getBookById);
+    bookRouter.put('/books/:id', updateBook);
+    bookRouter.delete('/books/:id', deleteBook);
+    bookRouter.patch('/books/:id', patchUpdateBook);
+    bookRouter.post('/books', newBook);
+    return bookRouter;
+  }
+
+  return addRoutes();
+  
 }
 
 module.exports = routes;
