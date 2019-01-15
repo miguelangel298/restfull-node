@@ -36,7 +36,6 @@ app.use(bodyParser.json());
 const port = process.env.port || 3000;
 const bookRouter = require('./application/routes/bookRoute')();
 
-console.log('esta mierdad son las routes' + bookRouter);
 app.use('/api', bookRouter);
 
 app.get('/', function(req, res) {
